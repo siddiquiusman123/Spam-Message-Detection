@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import nltk
 from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -20,6 +21,8 @@ user_input = st.text_area(
 
 
 stemmer = SnowballStemmer("english")
+
+nltk.download("stopwords", quiet=True)
 stop_words = set(stopwords.words("english"))
 
 def preprocess(text):
