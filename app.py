@@ -6,8 +6,15 @@ from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
-nltk.download("stopwords", quiet=True)
-nltk.download("punkt", quiet=True)
+def download_nltk():
+    nltk.download("punkt", quiet=True)
+    nltk.download("stopwords", quiet=True)
+    nltk.download("wordnet", quiet=True)
+    nltk.download("omw-1.4", quiet=True)
+    nltk.download("averaged_perceptron_tagger", quiet=True)
+
+download_nltk()
+
 
 st.title("📩 Spam Message Detection App")
 st.write("Check whether an SMS or message is **Spam** or **Not Spam**.")
