@@ -6,6 +6,9 @@ from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+nltk.download("stopwords", quiet=True)
+nltk.download("punkt", quiet=True)
+
 st.title("📩 Spam Message Detection App")
 st.write("Check whether an SMS or message is **Spam** or **Not Spam**.")
 
@@ -21,8 +24,6 @@ user_input = st.text_area(
 
 
 stemmer = SnowballStemmer("english")
-
-nltk.download("stopwords", quiet=True)
 stop_words = set(stopwords.words("english"))
 
 def preprocess(text):
