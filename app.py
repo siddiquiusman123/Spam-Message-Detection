@@ -1,72 +1,105 @@
 import streamlit as st
-import pandas as pd
 import joblib
 import nltk
+import re
+
 from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 
+# --------------------------------------------------
+# NLTK DOWNLOAD (CACHED)
+# --------------------------------------------------
+@st.cache_resource
 def download_nltk():
-    
-    nltk.download("punkt", quiet=True)
-    nltk.download("punkt_tab", quiet=True)
-    nltk.download("stopwords", quiet=True)
-    nltk.download("wordnet", quiet=True)
-    nltk.download("omw-1.4", quiet=True)
-    nltk.download("averaged_perceptron_tagger", quiet=True)
+    nltk.download("stopwords")
 
 download_nltk()
 
+# --------------------------------------------------
+# LOAD MODEL & VECTORIZER (CACHED)
+# --------------------------------------------------
+@st.cache_resource
+def load_artifacts():
+    model = joblib.load("Model.pkl")
+    vectorizer = joblib.load("Vectorizer.pkl")
+    return model, vectorizer
+
+model, vectorizer = load_artifacts()
+
+# --------------------------------------------------
+# NLP TOOLS
+# --------------------------------------------------
+stemmer = SnowballStemmer("english")
+
+stop_words = set(stopwords.words("english"))
+stop_words = stop_words - {"not", "no", "nor", "never"}
+
+# --------------------------------------------------
+# TEXT PREPROCESSING (DEPLOYMENT SAFE)
+# --------------------------------------------------
+def preprocess(text):
+    text = text.lower()
+    text = re.sub(r"[^a-z\s]", "", text)
+
+    tokens = text.split()   # SAFE replacement for word_tokenize
+
+    processed_words = [
+        stemmer.stem(word)
+        for word in tokens
+        if word not in stop_words
+    ]
+
+    return " ".join(processed_words)
+
+# --------------------------------------------------
+# STREAMLIT UI
+# --------------------------------------------------
+st.set_page_config(
+    page_title="Spam Message Detection",
+    page_icon="📩",
+    layout="centered"
+)
 
 st.title("📩 Spam Message Detection App")
 st.write("Check whether an SMS or message is **Spam** or **Not Spam**.")
 
-st.markdown("**✉️ Enter your message here:**")
-
 user_input = st.text_area(
-    "Message Input",
+    "✉️ Enter your message",
     placeholder="Type your message here...",
-    height=120,
-    label_visibility="collapsed"
+    height=130
 )
 
-
-
-stemmer = SnowballStemmer("english")
-stop_words = set(stopwords.words("english"))
-
-def preprocess(text):
-
-    text = text.lower() 
-    words = word_tokenize(text)
-
-    preprocessed_text = [
-
-        stemmer.stem(word)
-        for word in words
-        if word.isalpha() and word not in stop_words
-    ]
-
-    return " ".join(preprocessed_text)
-
-model = joblib.load("Model.pkl")
-vectorizer = joblib.load("Vectorizer.pkl")
-
-# clean_text = preprocess(user_input)
-# vec = vectorizer.transform([clean_text])
-# prediction = model.predict(vec)
-# print("Spam 🚫" if prediction[0] == 1 else "Not Spam ✅")
-
+# --------------------------------------------------
+# PREDICTION
+# --------------------------------------------------
 if st.button("🔍 Predict"):
     if user_input.strip() == "":
-        st.warning("Please enter a message")
+        st.warning("⚠️ Please enter a message.")
     else:
         clean_text = preprocess(user_input)
-        vector = vectorizer.transform([clean_text])
-        prediction = model.predict(vector)[0]
-        probability = model.predict_proba(vector).max()
 
-        if prediction == 1:
-            st.error(f"🚫 Spam Message\n\nConfidence : {probability*100:.2f}%")
+        if clean_text.strip() == "":
+            st.warning("⚠️ Message contains only stopwords or invalid text.")
         else:
-            st.success(f"✅ Not Spam Message\n\nConfidence : {probability*100:.2f}%")
+            with st.spinner("Analyzing message..."):
+                vector = vectorizer.transform([clean_text])
+                prediction = model.predict(vector)[0]
+
+                if hasattr(model, "predict_proba"):
+                    confidence = model.predict_proba(vector).max()
+                else:
+                    confidence = None
+
+            if prediction == 1:
+                st.error("🚫 **Spam Message**")
+            else:
+                st.success("✅ **Not Spam Message**")
+
+            if confidence is not None:
+                st.metric("Confidence", f"{confidence * 100:.2f}%")
+
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
+st.markdown("---")
+st.caption("NLP | TF-IDF | Machine Learning | Streamlit")
