@@ -27,13 +27,13 @@ The application is built using **Streamlit**, allowing users to instantly check 
 
 ## 📂 Project Structure
 
--spam-message-detection/
--│
--├── app.py
--├── Model.pkl
--├── Vectorizer.pkl
--├── requirements.txt
--├── README.md
+- spam-message-detection/
+- │
+- ├── app.py
+- ├── Model.pkl
+- ├── Vectorizer.pkl
+- ├── requirements.txt
+- ├── README.md
 
 
 ---
