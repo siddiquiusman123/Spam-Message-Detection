@@ -27,13 +27,13 @@ The application is built using **Streamlit**, allowing users to instantly check 
 
 ## 📂 Project Structure
 
-spam-message-detection/
-│
-├── app.py
-├── Model.pkl
-├── Vectorizer.pkl
-├── requirements.txt
-├── README.md
+-spam-message-detection/
+-│
+-├── app.py
+-├── Model.pkl
+-├── Vectorizer.pkl
+-├── requirements.txt
+-├── README.md
 
 
 ---
@@ -54,10 +54,10 @@ spam-message-detection/
 ---
 
 ## 📊 Results & Performance
-- Achieved strong accuracy using **TF-IDF + Logistic Regression / Naive Bayes**
+- Achieved strong accuracy using **TF-IDF + Naive Bayes**
 - Effectively detects promotional, phishing, and scam messages
 - Performs well on short and real-world SMS text
-- Successfully deployed on **Streamlit Cloud / HuggingFace Spaces**
+- Successfully deployed on **Streamlit Cloud**
 
 ---
 
