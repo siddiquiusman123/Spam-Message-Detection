@@ -40,7 +40,8 @@ The application is built using **Streamlit**, allowing users to instantly check 
 
 ## 🌐 Live Demo
 🔗 Click here to try the app  
-👉 *https://spam-message-detection-qy6ye6hb8ghptq7cuhteuw.streamlit.app/*
+👉 [Spam Message Detection App](https://spam-message-detection-qy6ye6hb8ghptq7cuhteuw.streamlit.app/)
+
 
 ---
 
