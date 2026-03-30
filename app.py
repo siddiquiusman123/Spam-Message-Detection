@@ -3,8 +3,8 @@ import joblib
 import nltk
 import re
 
-from nltk.stem import SnowballStemmer
-from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords, wordnet
 
 # --------------------------------------------------
 # NLTK DOWNLOAD (CACHED)
@@ -12,6 +12,8 @@ from nltk.corpus import stopwords
 @st.cache_resource
 def download_nltk():
     nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")  # for lemmatizer
 
 download_nltk()
 
@@ -29,7 +31,7 @@ model, vectorizer = load_artifacts()
 # --------------------------------------------------
 # NLP TOOLS
 # --------------------------------------------------
-stemmer = SnowballStemmer("english")
+lemmatizer = WordNetLemmatizer()
 
 stop_words = set(stopwords.words("english"))
 stop_words = stop_words - {"not", "no", "nor", "never"}
@@ -39,14 +41,15 @@ stop_words = stop_words - {"not", "no", "nor", "never"}
 # --------------------------------------------------
 def preprocess(text):
     text = text.lower()
-    text = re.sub(r"[^a-z\s]", "", text)
+    text = re.sub(r"http\S+|www\S+", "", text)  # remove URLs
+    text = re.sub(r"[^a-z\s]", "", text)        # remove non-letters
 
-    tokens = text.split()   # SAFE replacement for word_tokenize
+    tokens = text.split()   # simple tokenization
 
     processed_words = [
-        stemmer.stem(word)
+        lemmatizer.lemmatize(word)
         for word in tokens
-        if word not in stop_words
+        if word not in stop_words and len(word) > 2
     ]
 
     return " ".join(processed_words)
@@ -85,18 +88,10 @@ if st.button("🔍 Predict"):
                 vector = vectorizer.transform([clean_text])
                 prediction = model.predict(vector)[0]
 
-                if hasattr(model, "predict_proba"):
-                    confidence = model.predict_proba(vector).max()
-                else:
-                    confidence = None
-
             if prediction == 1:
                 st.error("🚫 **Spam Message**")
             else:
                 st.success("✅ **Not Spam Message**")
-
-            if confidence is not None:
-                st.metric("Confidence", f"{confidence * 100:.2f}%")
 
 # --------------------------------------------------
 # FOOTER
